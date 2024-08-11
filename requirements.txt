@@ -1,2 +1,3 @@
 openai
 ruff
+duckduckgo_search
