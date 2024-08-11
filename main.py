@@ -1,12 +1,11 @@
 
-import json
 import os
 import logging
 import asyncio
 from openai import OpenAI, AsyncOpenAI
 
-from functions import add_tool, generate_search_ddg_fn_result, get_search_ddg_fn
-from utils import query_completions_api_sync, query_completions_api_async, add_system_prompt, add_user_prompt, add_assistant_prompt, create_results_dir, log_messages_to_file
+from oat.functions import add_tool, get_search_ddg_fn, handle_tool_calls
+from oat.utils import query_completions_api_sync, query_completions_api_async, add_system_prompt, add_user_prompt, add_assistant_prompt, create_results_dir, log_messages_to_file
 
 
 if __name__ == "__main__":
@@ -34,16 +33,7 @@ if __name__ == "__main__":
         output_message, response = query_completions_api_sync(sync_client, messages=messages, tools=tools, max_tokens=512)
 
     # Check if tool needs to be called
-    max_tool_calls = 2
-    tool_calls = 0
-    while (tool_calls < max_tool_calls) and response.choices[0].finish_reason == "tool_calls":
-        messages.append(response.choices[0].message)
-        tool_calls += 1
-        tool_call = response.choices[0].message.tool_calls[0]
-        arguments = json.loads(tool_call.function.arguments)
-        if tool_call.function.name == "search_ddg":
-            messages = generate_search_ddg_fn_result(tool_call, arguments, messages)
-        output_message, response = query_completions_api_sync(sync_client, messages=messages, tools=tools, max_tokens=512)        
+    output_message, response, messages = handle_tool_calls(sync_client, response, messages, tools)    
 
     # Save the results to a file
     messages = add_assistant_prompt(messages, prompt=output_message)

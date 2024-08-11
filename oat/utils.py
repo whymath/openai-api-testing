@@ -5,28 +5,28 @@ from pathlib import Path
 from openai import OpenAI, AsyncOpenAI
 
 
-def add_system_prompt(messages: list[dict[str, str]], prompt: str) -> list[dict[str, str]]:
+def add_system_prompt(messages: list, prompt: str) -> list:
     if messages is None:
         messages = []
     messages.append({"role": "system", "content": prompt})
     return messages
 
 
-def add_user_prompt(messages: list[dict[str, str]], prompt: str) -> list[dict[str, str]]:
+def add_user_prompt(messages: list, prompt: str) -> list:
     if messages is None:
         messages = []
     messages.append({"role": "user", "content": prompt})
     return messages
 
 
-def add_assistant_prompt(messages: list[dict[str, str]], prompt: str) -> list[dict[str, str]]:
+def add_assistant_prompt(messages: list, prompt: str) -> list:
     if messages is None:
         messages = []
     messages.append({"role": "assistant", "content": prompt})
     return messages
 
 
-def query_completions_api_sync(client: OpenAI, messages: list[dict[str, str]], tools: list[dict] = None, model = "gpt-4o-mini", temperature: int = 0.1, max_tokens: int = 256) -> str:
+def query_completions_api_sync(client: OpenAI, messages: list, tools: list[dict] = None, model = "gpt-4o-mini", temperature: int = 0.1, max_tokens: int = 256) -> str:
     response = client.chat.completions.create(
         model=model,
         temperature=temperature,
@@ -40,7 +40,7 @@ def query_completions_api_sync(client: OpenAI, messages: list[dict[str, str]], t
     return output_message, response
 
 
-async def query_completions_api_async(client: AsyncOpenAI, messages: list[dict[str, str]], tools: list[dict] = None, model = "gpt-4o-mini", temperature: int = 0.1, max_tokens: int = 256) -> str:
+async def query_completions_api_async(client: AsyncOpenAI, messages: list, tools: list[dict] = None, model = "gpt-4o-mini", temperature: int = 0.1, max_tokens: int = 256) -> str:
     response = await client.chat.completions.create(
         model=model,
         temperature=temperature,
@@ -63,7 +63,7 @@ def create_results_dir(exp_name: str = None) -> Path:
     return results_dir
 
 
-def log_messages_to_file(messages: list[dict[str, str]], results_dir: Path, episode_name: str = None) -> None:
+def log_messages_to_file(messages: list, results_dir: Path, episode_name: str = None) -> None:
     logfile_name = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     if episode_name:
         logfile_name += f"_{episode_name}"
